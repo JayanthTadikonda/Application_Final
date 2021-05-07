@@ -1,0 +1,35 @@
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+server:
+  port: 9999
+spring:
+  application:
+    name: carWash-api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: order-microservice
+          uri: lb://order-microservice
+          predicates:
+            - Path=/order/**
+        - id: payment-microservice
+          uri: lb://payment-microservice
+          predicates:
+            - Path=/payment/**
+        - id: customer-microservice
+          uri: lb://customer-microservice
+          predicates:
+            - Path=/customer/**
+        - id: washer-microservice
+          uri: lb://washer-microservice
+          predicates:
+            - Path=/washer/**
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/CarWashWashers
