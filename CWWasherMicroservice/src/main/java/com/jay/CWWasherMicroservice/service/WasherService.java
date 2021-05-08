@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -42,6 +43,13 @@ public class WasherService {
     private AuthenticationManager authenticationManager;
 
     String copyMsg = ""; //notification received from the customer
+
+    String washerName;
+    //Logged in Washer-Name
+    public String washerName(){
+        washerName = jwtFilter.getLoggedInUserName();
+        return jwtFilter.getLoggedInUserName();
+    }
 
     //Notification received from the customer
     public String washRequestFromCustomer() {
@@ -104,9 +112,11 @@ public class WasherService {
             return "Wash Booking Rejected !, Try again ";
     }
 
-    public RatingReview takeRating(RatingReview ratingReview){
+    public RatingReview takeRating(RatingReview ratingReview) {
         Washer washer = washerRepository.findByName(jwtFilter.getLoggedInUserName());
-        washer.setRatingReviewList((List<RatingReview>) ratingReview);
+        List<RatingReview> ratingReviewList = new ArrayList<>();
+        ratingReviewList.add(ratingReview);
+        washer.setRatingReviewList(ratingReviewList);
         washerRepository.save(washer);
         return ratingReview;
     }

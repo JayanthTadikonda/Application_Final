@@ -64,11 +64,11 @@ public class CustomerController {
     }
 
     @GetMapping("/pay") // Pay after the wash is completed.
-    public TransactionResponse doPayment() throws Exception {
-        return customerService.payAfterWash();
+    public TransactionResponse doPayment(@RequestBody RatingReview ratingReview) throws Exception {
+        return customerService.payAfterWash(ratingReview);
     }
 
-    @PostMapping("/rate-washer")
+    @GetMapping("/rate-washer")
     public RatingReview rateWasher(@RequestBody RatingReview ratingReview){
         return customerService.giveRatingAndReview(ratingReview);
     }

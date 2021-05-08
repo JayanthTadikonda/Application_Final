@@ -68,6 +68,7 @@ public class WasherController {
 
     @PostMapping("/authenticate")
     public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
+
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
@@ -80,7 +81,9 @@ public class WasherController {
 
     @GetMapping("/test-security")
     public String sayHelloToWasher() {
-        return "Hey there washer:" + jwtFilter.getLoggedInUserName();
+
+        String name = jwtFilter.getLoggedInUserName();
+        return "Hey there washer:" + name;
     }
 
     @GetMapping("/order-accepted")
@@ -97,8 +100,8 @@ public class WasherController {
         return "Washer Partner served the request: "+ washerService.washRequestFromCustomer();
     }
 
-    @GetMapping("/get-rating")
-    public RatingReview takeRating(RatingReview ratingReview){
+    @PostMapping("/get-rating")
+    public RatingReview takeRating(@RequestBody RatingReview ratingReview){
         return washerService.takeRating(ratingReview);
     }
 }

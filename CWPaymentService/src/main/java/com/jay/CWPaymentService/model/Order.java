@@ -19,5 +19,6 @@ public class Order {
     private String washerName;
     private Date date;
     private String paymentStatus;
+    private String emailAddress;
 
 }

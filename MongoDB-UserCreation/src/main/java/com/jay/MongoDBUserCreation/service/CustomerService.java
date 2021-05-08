@@ -122,18 +122,20 @@ public class CustomerService {
         return washerResponse;
     }
 
-    public TransactionResponse doPay(Order order) {
+    public TransactionResponse doPay(Order order, RatingReview ratingReview) {
         Payment payment = new Payment();
         payment.setCustomerName(order.getCustomerName());
         payment.setWasherName(order.getWasherName());
         payment.setOrderId(order.getOrderId());
         payment.setAmount(order.getAmount());
+        payment.setReview(ratingReview.getReview());
+        payment.setRating(ratingReview.getRating());
         TransactionRequest request = new TransactionRequest(order, payment);
         sendNotification("Payment Processed with ID:" + payment.getTransactionId());
         return restTemplate.postForObject("http://payment-microservice/payment/pay", request, TransactionResponse.class);
     }
 
-    public TransactionResponse payAfterWash() throws Exception {
+    public TransactionResponse payAfterWash(RatingReview ratingReview) throws Exception {
 
         Payment payment = new Payment();
         Customer customer = customerRepository.findByName(jwtFilter.getLoggedInUserName());
@@ -180,9 +182,9 @@ public class CustomerService {
             //Condition for FIRST-TIME payment
             if (!orderId_paymentList.contains(o.getOrderId())) {
                 //Do 1st Time payment
-                return doPay(o);
+                return doPay(o,ratingReview);
             } else if (!orderId_paymentList.contains(o.getOrderId()) && o.getPaymentStatus().contains("pending")) {
-                return doPay(o);
+                return doPay(o,ratingReview);
             }
         }
         return new TransactionResponse(finalResponse.getOrder(), finalResponse.getTransactionId(), finalResponse.getAmount(), "All Payments Successful, No Pending Payments");
@@ -202,6 +204,7 @@ public class CustomerService {
             order.setWashName(getPack(packName).getPackName());
             order.setAmount(getPack(packName).getAmount());
             order.setDate(new Date(System.currentTimeMillis()));
+            order.setEmailAddress(customer.getEmailAddress());
             placedOrder = restTemplate.postForObject("http://order-microservice/order/place-order", order, Order.class);
             sendNotification("Order placed at: " + order.getDate() + "with Washer Partner: " + order.getWasherName());
             String orderStatus = restTemplate.getForObject("http://washer-microservice/washer/order-accepted", String.class);
@@ -214,6 +217,7 @@ public class CustomerService {
     }
 
     public RatingReview giveRatingAndReview(RatingReview ratingReview) {
+        //ratingReview.setWasherName();
         return restTemplate.postForObject("http://washer-microservice/washer/get-rating", ratingReview, RatingReview.class);
     }
 

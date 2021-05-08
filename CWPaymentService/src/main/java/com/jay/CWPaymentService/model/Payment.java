@@ -25,4 +25,6 @@ public class Payment {
     private int orderId;
     private double amount;
     private LocalDateTime paymentDate;
+    private String review;
+    private int rating;
 }
