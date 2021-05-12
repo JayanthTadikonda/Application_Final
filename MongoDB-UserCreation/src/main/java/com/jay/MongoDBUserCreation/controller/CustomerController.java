@@ -1,25 +1,27 @@
 package com.jay.MongoDBUserCreation.controller;
 
+import com.jay.MongoDBUserCreation.exceptions.CustomerNotFoundException;
 import com.jay.MongoDBUserCreation.filter.JwtFilter;
 import com.jay.MongoDBUserCreation.model.*;
 import com.jay.MongoDBUserCreation.repository.CustomerRepository;
 import com.jay.MongoDBUserCreation.service.CustomerService;
 import com.jay.MongoDBUserCreation.util.JwtUtil;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
 @RequestMapping("/customer")
+@SuppressWarnings({"unused"})
 public class CustomerController {
 
     @Autowired
@@ -38,15 +40,20 @@ public class CustomerController {
     private AuthenticationManager authenticationManager;
 
     @GetMapping("/wash-menu")
-    public List<WashPack> getWashPackages(){
+    public List<WashPack> getWashPackages() {
         return customerService.getPacks();
     }
 
     @GetMapping("/schedule-wash/{date}")
-    public String scheduleWash(@PathVariable LocalDate date)throws Exception {
-        String sent = customerService.sendNotification("Requesting for Scheduling wash at: "+ date.format(DateTimeFormatter.BASIC_ISO_DATE) + "By customer: " + jwtFilter.getLoggedInUserName());
+    public String scheduleWash(@DateTimeFormat(pattern = "dd.MM.yyyy") @PathVariable LocalDate date) throws Exception {
+        String sent = customerService.sendNotification("Requesting for Scheduling wash at: " + date + "By customer: " + jwtFilter.getLoggedInUserName());
         String resp = customerService.receiveNotification();
         return sent;
+    }
+
+    @GetMapping("/date/{date}")
+    public LocalDate returnDate(@DateTimeFormat(pattern = "dd.MM.yyyy") @PathVariable LocalDate date) {
+        return date;
     }
 
     @GetMapping("/wash-now") //Wash Service Booking
@@ -59,8 +66,8 @@ public class CustomerController {
     }
 
     @GetMapping("/continue") //Proceed to create an ORDER for the Wash
-    public OrderResponse placeOrderForAcceptedWashRequest(@RequestParam("pack") String packName) throws Exception {
-        return customerService.placeOrder(packName);
+    public OrderResponse placeOrderForAcceptedWashRequest(@RequestParam("pack") String packName, @RequestParam("add-on") String addOnName) throws Exception {
+        return customerService.placeOrder(packName, addOnName);
     }
 
     @GetMapping("/pay") // Pay after the wash is completed.
@@ -68,8 +75,8 @@ public class CustomerController {
         return customerService.payAfterWash(ratingReview);
     }
 
-    @GetMapping("/rate-washer")
-    public RatingReview rateWasher(@RequestBody RatingReview ratingReview){
+    @GetMapping("/rate-washer") // Rate the washer after the wash
+    public RatingReview rateWasher(@RequestBody RatingReview ratingReview) {
         return customerService.giveRatingAndReview(ratingReview);
     }
 
@@ -80,13 +87,21 @@ public class CustomerController {
     }
 
     @GetMapping("/get-customer/{name}") // Get customer with name
-    public Customer getCustomerByName(@PathVariable String name) {
-        return customerService.findByName(name);
+    public ResponseEntity<Customer> getCustomerByName(@PathVariable String name) {
+        Customer customer = customerService.findByName(name);
+        if (customer == null) {
+            throw new CustomerNotFoundException("Sorry, Customer with the provided name not found, please provide the name used while registration !");
+        }
+        return new ResponseEntity<Customer>(customer, HttpStatus.OK);
     }
 
     @GetMapping("/customer-id/{id}") // Get customer with ID
-    public Customer getCustomerById(@PathVariable int id) {
-        return customerRepository.findById(id);
+    public ResponseEntity<Customer> getCustomerById(@PathVariable int id) {
+        Customer customer = customerRepository.findById(id);
+        if (customer == null) {
+            throw new CustomerNotFoundException("Invalid Customer Id, please provide valid ID !");
+        }
+        return new ResponseEntity<Customer>(customer, HttpStatus.OK);
     }
 
     @GetMapping("/all-customers") //Lists all the customers in the db
@@ -104,12 +119,12 @@ public class CustomerController {
         return customerService.receiveNotification();
     }
 
-    @GetMapping(value = "/test-security")
+    @GetMapping(value = "/test-security") //Testing Logged-In Customer name
     public String sayHelloOnAuthentication() {
         return "Hey there " + jwtFilter.getLoggedInUserName();
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/authenticate") //Authenticate a Customer (Existing)
     public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
         try {
             authenticationManager.authenticate(
@@ -119,5 +134,15 @@ public class CustomerController {
             throw new Exception("Invalid Username or Password Entered !");
         }
         return jwtUtil.generateToken(authRequest.getUsername());
+    }
+
+    @GetMapping("/my-orders")
+    public List<Order> myOrders() {
+        return customerService.customerOrders(jwtFilter.getLoggedInUserName());
+    }
+
+    @GetMapping("/leaderboard")
+    public List<WasherLeaderboard> washerLeaderboard() {
+        return customerService.washerLeaderboard();
     }
 }

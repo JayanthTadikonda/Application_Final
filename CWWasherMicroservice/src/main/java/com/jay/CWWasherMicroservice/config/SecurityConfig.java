@@ -35,7 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests().antMatchers("/washer/get-rating","/washer/authenticate", "/washer/receive-wash-notifications","/washer/order-accepted","/washer/add-washer").permitAll()
+        http.csrf().disable().authorizeRequests().antMatchers("/washer/get-rating","/washer/authenticate", "/washer/receive-wash-notifications",
+                "/washer/order-accepted","/washer/add-washer",
+                "/washer/washer-leaderboard").permitAll()
                 .anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

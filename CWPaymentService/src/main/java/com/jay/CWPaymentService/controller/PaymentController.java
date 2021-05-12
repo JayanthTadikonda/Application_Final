@@ -1,5 +1,6 @@
 package com.jay.CWPaymentService.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jay.CWPaymentService.model.Payment;
 import com.jay.CWPaymentService.model.TransactionRequest;
 import com.jay.CWPaymentService.model.TransactionResponse;
@@ -26,7 +27,7 @@ public class PaymentController {
     public EmailService emailService;
 
     @PostMapping("/pay")
-    public TransactionResponse payAmount(@RequestBody TransactionRequest request) throws AddressException {
+    public TransactionResponse payAmount(@RequestBody TransactionRequest request) throws AddressException, JsonProcessingException {
         return paymentService.doPaymentSetOrderPaymentStatus(request);
     }
 
@@ -53,5 +54,10 @@ public class PaymentController {
     public String sendDummy() throws AddressException {
         paymentService.sendEmailDummy();
         return "SEnt MAIL";
+    }
+
+    @RequestMapping("/test-payment")
+    public String testPayment(){
+        return "Payment gateway up and running";
     }
 }

@@ -6,8 +6,10 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     hostname: localhost
+
 server:
   port: 9999
+
 spring:
   application:
     name: carWash-api-gateway
@@ -18,10 +20,20 @@ spring:
           uri: lb://order-microservice
           predicates:
             - Path=/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: order-microservice
+                fallbackuri: forward:/orderFallback
         - id: payment-microservice
           uri: lb://payment-microservice
           predicates:
             - Path=/payment/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: payment-microservice
+                fallbackuri: forward:/paymentFallback
         - id: customer-microservice
           uri: lb://customer-microservice
           predicates:
@@ -33,3 +45,17 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/CarWashWashers
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000

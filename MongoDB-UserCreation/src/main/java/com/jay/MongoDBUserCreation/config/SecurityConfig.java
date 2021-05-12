@@ -38,7 +38,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/swagger-resources/**",
                 "/swagger-ui.html",
                 "/v2/api-docs",
-                "/webjars/**","/customer/authenticate", "/customer/confirmation", "/customer/get-customer/", "/customer/add-customer","/customer/swagger-ui/","/customer/api/swagger-ui/").permitAll()
+                "/webjars/**","/customer/authenticate", "/customer/confirmation",
+                "/customer/get-customer/", "/customer/add-customer",
+                "/customer/swagger-ui/","/customer/api/swagger-ui/",
+                "/customer/get-customer/{name}","/customer/customer-id/{id}",
+                "customer/date/{date}").permitAll()
                 .anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -1,8 +1,12 @@
 package com.jay.CWOrderService.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jay.CWOrderService.common.*;
 import com.jay.CWOrderService.model.Order;
 import com.jay.CWOrderService.repository.OrderRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +27,9 @@ public class OrderService {
 
     @Autowired
     private AutomatedOrderId orderId;
+
+    private Logger log = LoggerFactory.getLogger(OrderService.class);
+
 
     public TransactionResponse saveOrder(TransactionRequest request) {
 
@@ -50,23 +57,21 @@ public class OrderService {
         return new TransactionResponse(order, paymentResponse.getTransactionId(), paymentResponse.getAmount(), response, null);
     }
 
-    public Order payAfterWash(Order order) {
+    public Order payAfterWash(Order order) throws JsonProcessingException {
 
         Random random = new Random();
         order.setOrderId(random.nextInt(9999));
         order.setPaymentStatus("Pending");
 
-        if (order.getWashName().contains("basic-wash")) {
-            order.setAmount(999);
-
-        } else {
-            order.setAmount(555);
-        }
+        log.info("Order-Service Request: {}", new ObjectMapper().writeValueAsString(order));
         orderRepository.save(order);
         return order;
     }
 
     public List<Order> getOrderListByName(String name) {
         return orderRepository.findAll().stream().filter(a -> a.getCustomerName().equalsIgnoreCase(name)).collect(Collectors.toList());
+    }
+    public List<Order> getWasherOrderListByName(String name) {
+        return orderRepository.findAll().stream().filter(a -> a.getWasherName().equalsIgnoreCase(name)).collect(Collectors.toList());
     }
 }

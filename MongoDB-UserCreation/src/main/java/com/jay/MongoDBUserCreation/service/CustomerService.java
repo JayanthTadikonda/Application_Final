@@ -52,6 +52,12 @@ public class CustomerService {
     private final List<WashPack> packs = new ArrayList<>(Arrays.asList(new WashPack("basic-wash", 999),
             new WashPack("advanced-wash", 1999)));
 
+    private final List<AddOn> addOnList = new ArrayList<>(Arrays.asList(new AddOn("interior-clean",499),
+            new AddOn("Sanitization",599),
+            new AddOn("Teflon-Coating",699),
+            new AddOn("Engine-Care",799)));
+
+
     public List<WashPack> getPacks() {
         return packs;
     }
@@ -182,15 +188,15 @@ public class CustomerService {
             //Condition for FIRST-TIME payment
             if (!orderId_paymentList.contains(o.getOrderId())) {
                 //Do 1st Time payment
-                return doPay(o,ratingReview);
+                return doPay(o, ratingReview);
             } else if (!orderId_paymentList.contains(o.getOrderId()) && o.getPaymentStatus().contains("pending")) {
-                return doPay(o,ratingReview);
+                return doPay(o, ratingReview);
             }
         }
         return new TransactionResponse(finalResponse.getOrder(), finalResponse.getTransactionId(), finalResponse.getAmount(), "All Payments Successful, No Pending Payments");
     }
 
-    public OrderResponse placeOrder(String packName) throws Exception {
+    public OrderResponse placeOrder(String packName, String addOn) throws Exception {
         Order placedOrder;
         String resp = receiveNotification();
 
@@ -202,7 +208,8 @@ public class CustomerService {
             order.setCarModel(customer.getCarModel());
             order.setWasherName(resp.substring(40));
             order.setWashName(getPack(packName).getPackName());
-            order.setAmount(getPack(packName).getAmount());
+            order.setAddOn(getAddOn(addOn));
+            order.setAmount(getPack(packName).getAmount() + getAddOn(addOn).getAmount());
             order.setDate(new Date(System.currentTimeMillis()));
             order.setEmailAddress(customer.getEmailAddress());
             placedOrder = restTemplate.postForObject("http://order-microservice/order/place-order", order, Order.class);
@@ -221,4 +228,32 @@ public class CustomerService {
         return restTemplate.postForObject("http://washer-microservice/washer/get-rating", ratingReview, RatingReview.class);
     }
 
+    public List<Order> customerOrders(String name){
+
+        List<Order> orderList = null;
+
+        try {
+            ResponseEntity<List<Order>> claimResponse = restTemplate.exchange(
+                    "http://order-microservice/order/get-orders/" + name,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Order>>() {
+                    });
+            if (claimResponse.hasBody()) {
+               orderList = claimResponse.getBody();
+            }
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+
+        return orderList;
+    }
+
+    public List<WasherLeaderboard> washerLeaderboard(){
+        return restTemplate.getForObject("http://washer-microservice/washer/washer-leaderboard",List.class);
+    }
+
+    public AddOn getAddOn(String name){
+        return addOnList.stream().filter(a->a.getAddOnName().contains(name)).findAny().orElse(null);
+    }
 }

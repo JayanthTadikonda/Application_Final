@@ -1,9 +1,7 @@
 package com.jay.CWWasherMicroservice.controller;
 
 import com.jay.CWWasherMicroservice.filter.JwtFilter;
-import com.jay.CWWasherMicroservice.model.AuthRequest;
-import com.jay.CWWasherMicroservice.model.RatingReview;
-import com.jay.CWWasherMicroservice.model.Washer;
+import com.jay.CWWasherMicroservice.model.*;
 import com.jay.CWWasherMicroservice.repository.WasherRepository;
 import com.jay.CWWasherMicroservice.service.WasherService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -103,5 +101,15 @@ public class WasherController {
     @PostMapping("/get-rating")
     public RatingReview takeRating(@RequestBody RatingReview ratingReview){
         return washerService.takeRating(ratingReview);
+    }
+
+    @GetMapping("/my-orders")
+    public List<Order> myOrders(){
+        return washerService.washerOrders(jwtFilter.getLoggedInUserName());
+    }
+
+    @GetMapping("/washer-leaderboard")
+    public List<WasherLeaderboard> leaderboard(){
+        return washerService.washerLeaderboard();
     }
 }

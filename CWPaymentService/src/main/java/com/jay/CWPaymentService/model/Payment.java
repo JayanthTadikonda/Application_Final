@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Payment {
 
-    @Id private ObjectId _id;
+    @Id
+    private ObjectId _id;
     private int paymentId;
     private String customerName;
     private String washerName;
@@ -27,4 +28,20 @@ public class Payment {
     private LocalDateTime paymentDate;
     private String review;
     private int rating;
+
+    @Override
+    public String toString() {
+        return "Hey " + customerName + "! \n " +
+                " Payment Receipt for your Recent CAR WASH ! " + "\n " +
+                " customerName  : " + customerName + " \n " +
+                " washerName    : " + washerName + "\n " +
+                " orderId       : " + orderId + "\n " +
+                " paymentId     : " + paymentId + "\n " +
+                " transactionId : " + transactionId + "\n " +
+                " paymentStatus : " + paymentStatus + "\n " +
+                " amount        : " + amount + "\n " +
+                " paymentDate   : " + paymentDate + "\n " +
+                " review        : " + review + "\n " +
+                " rating        : " + rating + "\n ";
+    }
 }

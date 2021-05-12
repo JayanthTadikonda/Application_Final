@@ -17,6 +17,7 @@ public class Order {
     private double amount;
     private String customerName;
     private String washerName;
+    private AddOn addOn;
     private Date date;
     private String paymentStatus;
     private String emailAddress;
