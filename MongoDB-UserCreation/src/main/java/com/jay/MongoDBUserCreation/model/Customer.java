@@ -22,5 +22,6 @@ public class Customer {
     private List<String> address;
     private String carModel;
     private String emailAddress;
+    private String role;
 
 }

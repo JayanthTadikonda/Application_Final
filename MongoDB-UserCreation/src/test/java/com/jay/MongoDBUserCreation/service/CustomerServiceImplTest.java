@@ -46,7 +46,7 @@ class CustomerServiceImplTest {
     @DisplayName("Find customer by Name")
     void findByName() {
         Customer customer = new Customer(
-                1,"a","pass",new ArrayList<String>(),"suv","email");
+                1,"a","pass",new ArrayList<String>(),"suv","email",null);
         when(customerServiceImplMock.findByName("customer")).thenReturn(customer);
     }
 

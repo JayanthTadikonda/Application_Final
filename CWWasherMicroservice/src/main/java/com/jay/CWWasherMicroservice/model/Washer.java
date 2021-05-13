@@ -20,5 +20,6 @@ public class Washer {
     private String password;
     private List<String> address;
     private List<RatingReview> ratingReviewList;
+    private String role;
 
 }

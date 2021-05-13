@@ -11,6 +11,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -85,6 +87,7 @@ public class CustomerController {
         return customer;
     }
 
+
     @GetMapping("/get-customer/{name}") // Get customer with name
     public ResponseEntity<Customer> getCustomerByName(@PathVariable String name) {
         Customer customer = customerServiceImpl.findByName(name);
@@ -103,6 +106,7 @@ public class CustomerController {
         return new ResponseEntity<Customer>(customer, HttpStatus.OK);
     }
 
+
     @GetMapping("/all-customers") //Lists all the customers in the db
     public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
@@ -118,6 +122,7 @@ public class CustomerController {
         return customerServiceImpl.receiveNotification();
     }
 
+    //@PreAuthorize("hasRole('CUSTOMER')")
     @GetMapping(value = "/test-security") //Testing Logged-In Customer name
     public String sayHelloOnAuthentication() {
         return "Hey there " + jwtFilter.getLoggedInUserName();
@@ -143,5 +148,16 @@ public class CustomerController {
     @GetMapping("/leaderboard")
     public List<WasherLeaderboard> washerLeaderboard() {
         return customerServiceImpl.washerLeaderboard();
+    }
+
+    //@PreAuthorize("hasRole('WASHER')")
+    @GetMapping("/washer-only")
+    public String heyWasher(){
+        return "This method only Accessible by Washer Partner !, Hey there washer !!!";
+    }
+    //@PreAuthorize("hasAuthority('CUSTOMER')")
+    @GetMapping("/customer-only")
+    public String heyCustomer(){
+        return "This method only Accessible by Customerrrrrr !";
     }
 }

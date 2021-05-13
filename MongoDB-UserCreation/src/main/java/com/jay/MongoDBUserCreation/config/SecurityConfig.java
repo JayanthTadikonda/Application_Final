@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -20,10 +21,12 @@ import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -35,14 +38,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .authorizeRequests().antMatchers("/swagger-resources/**",
-                "/swagger-ui.html",
-                "/v2/api-docs",
-                "/webjars/**","/customer/authenticate", "/customer/confirmation",
-                "/customer/get-customer/", "/customer/add-customer",
-                "/customer/swagger-ui/","/customer/api/swagger-ui/",
-                "/customer/get-customer/{name}","/customer/customer-id/{id}",
-                "customer/date/{date}").permitAll()
+                .authorizeRequests()
+                .antMatchers("/swagger-resources/**",
+                        "/swagger-ui.html",
+                        "/v2/api-docs",
+                        "/webjars/**", "/customer/swagger-ui/", "/customer/api/swagger-ui/", "/customer/authenticate").permitAll()
+                .antMatchers("/customer/confirmation", "/customer/add-customer"
+                        , "/customer/customer-only", "/customer/my-orders").hasAnyAuthority("ADMIN", "CUSTOMER")
+                .antMatchers("/customer/get-customer/",
+                        "/customer/get-customer/{name}", "/customer/customer-id/{id}",
+                        "customer/date/{date}", "/customer/all-customers").hasAuthority("ADMIN")
+                .antMatchers("/customer/washer-only").hasAnyAuthority("WASHER", "ADMIN")
                 .anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -64,6 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
     private SecurityContext securityContext() {
         return SecurityContext.builder().securityReferences(defaultAuth()).build();
     }
@@ -72,6 +79,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference("JWT", authorizationScopes));
+        return Collections.singletonList(new SecurityReference("JWT", authorizationScopes));
     }
 }

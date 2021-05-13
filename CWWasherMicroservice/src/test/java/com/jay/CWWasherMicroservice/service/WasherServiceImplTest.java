@@ -44,7 +44,7 @@ class WasherServiceImplTest {
     void findByName() {
         when(washerServiceImplMock.findByName("washer"))
                 .thenReturn(new Washer(
-                        1,"washer","pass",new ArrayList<String>(),new ArrayList<RatingReview>()));
+                        1,"washer","pass",new ArrayList<String>(),new ArrayList<RatingReview>(),null));
 
     }
 

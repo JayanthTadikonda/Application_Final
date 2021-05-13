@@ -4,6 +4,8 @@ import com.jay.CWWasherMicroservice.filter.JwtFilter;
 import com.jay.CWWasherMicroservice.model.*;
 import com.jay.CWWasherMicroservice.repository.WasherRepository;
 import com.jay.CWWasherMicroservice.service.WasherServiceImpl;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import com.jay.CWWasherMicroservice.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,5 +113,11 @@ public class WasherController {
     @GetMapping("/washer-leaderboard")
     public List<WasherLeaderboard> leaderboard(){
         return washerServiceImpl.washerLeaderboard();
+    }
+
+    //@PostAuthorize("hasRole('WASHER')")
+    @GetMapping("/customer-secure-method")
+    public String accessCustomerApi(){
+        return restTemplate.getForObject("http://customer-microservice/customer/washer-only",String.class);
     }
 }
