@@ -1,4 +1,4 @@
-package com.jay.MongoDBUserCreation.config;
+package com.jay.CWPaymentService.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,9 +44,9 @@ public class SpringFoxConfig extends WebMvcConfigurerAdapter {
     }
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Car Wash Customer DashBoard",
-                "Customer-Specific API s",
-                "1.0",
+                "Car Wash Payment DashBoard",
+                "Payment-Specific API s",
+                "999",
                 "Terms of service",
                 new Contact("Jayanth TJ", "TJ_Applications", "jayanth2683@gmail.com"),
                 "Dummy License of API",

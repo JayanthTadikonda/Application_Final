@@ -12,9 +12,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class PaymentServiceTest {
+class PaymentServiceImplTest {
 
-    PaymentService paymentServiceMock = mock(PaymentService.class);
+    PaymentServiceImpl paymentServiceImplMock = mock(PaymentServiceImpl.class);
 
 
     @Test
@@ -42,7 +42,7 @@ class PaymentServiceTest {
                 new Payment(null,2,"a","b","success","5434",3223,999,null,"good",3),
                 new Payment(null,2,"a","b","success","756",3223,999,null,"good",3));
 
-        when(paymentServiceMock.paymentList("customer")).thenReturn(paymentList);
+        when(paymentServiceImplMock.paymentList("customer")).thenReturn(paymentList);
 
     }
 }

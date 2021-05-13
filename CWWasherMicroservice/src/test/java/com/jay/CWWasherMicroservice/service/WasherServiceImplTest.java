@@ -11,28 +11,28 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class WasherServiceTest {
+class WasherServiceImplTest {
 
 
-    WasherService washerServiceMock = mock(WasherService.class);
+    WasherServiceImpl washerServiceImplMock = mock(WasherServiceImpl.class);
 
 
     @Test
     @DisplayName("Get Logged In Washer Name")
     void washerName() {
-        when(washerServiceMock.washerName()).thenReturn("name of the washer logged In");
+        when(washerServiceImplMock.washerName()).thenReturn("name of the washer logged In");
     }
 
     @Test
     @DisplayName("Check Customer Wash-Requests")
     void washRequestFromCustomer() {
-        when(washerServiceMock.washRequestFromCustomer()).thenReturn("book-wash");
+        when(washerServiceImplMock.washRequestFromCustomer()).thenReturn("book-wash");
     }
 
     @Test
     void receiveNotification() throws Exception {
-        when(washerServiceMock.receiveNotification()).thenReturn("received customer notification");
-        assertEquals(1,washerServiceMock.receiveNotification());
+        when(washerServiceImplMock.receiveNotification()).thenReturn("received customer notification");
+        assertEquals(1, washerServiceImplMock.receiveNotification());
     }
 
     @Test
@@ -42,7 +42,7 @@ class WasherServiceTest {
     @Test
     @DisplayName("Get washer by name")
     void findByName() {
-        when(washerServiceMock.findByName("washer"))
+        when(washerServiceImplMock.findByName("washer"))
                 .thenReturn(new Washer(
                         1,"washer","pass",new ArrayList<String>(),new ArrayList<RatingReview>()));
 
@@ -50,6 +50,6 @@ class WasherServiceTest {
 
     @Test
     void washerChoice() {
-        when(washerServiceMock.washerChoice(true)).thenReturn("washer accepted the wash");
+        when(washerServiceImplMock.washerChoice(true)).thenReturn("washer accepted the wash");
     }
 }

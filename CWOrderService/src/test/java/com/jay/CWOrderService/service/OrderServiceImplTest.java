@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class OrderServiceTest {
+class OrderServiceImplTest {
 
-    OrderService orderServiceMock = mock(OrderService.class);
+    OrderServiceImpl orderServiceImplMock = mock(OrderServiceImpl.class);
 
 
     @Test
@@ -26,7 +25,7 @@ class OrderServiceTest {
                 new com.jay.CWOrderService.model.Order(
                         null,1,"asd","suv",999,"Kevin","sds",null,null,"paid","mail"));
 
-        when(orderServiceMock.payAfterWash(orderList.get(0))).thenReturn(orderList.get(0));
+        when(orderServiceImplMock.payAfterWash(orderList.get(0))).thenReturn(orderList.get(0));
     }
 
     @Test
@@ -37,6 +36,6 @@ class OrderServiceTest {
                         null,1,"asd","suv",999,"Kevin","sds",null,null,"paid","mail"));
 
 
-        when(orderServiceMock.getOrderListByName("kevin")).thenReturn(orderList);
+        when(orderServiceImplMock.getOrderListByName("kevin")).thenReturn(orderList);
     }
 }

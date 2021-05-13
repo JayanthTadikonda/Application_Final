@@ -34,14 +34,14 @@ public class Payment {
         return "Hey " + customerName + "! \n " +
                 " Payment Receipt for your Recent CAR WASH ! " + "\n " +
                 " customerName  : " + customerName + " \n " +
-                " washerName    : " + washerName + "\n " +
-                " orderId       : " + orderId + "\n " +
-                " paymentId     : " + paymentId + "\n " +
-                " transactionId : " + transactionId + "\n " +
-                " paymentStatus : " + paymentStatus + "\n " +
-                " amount        : " + amount + "\n " +
-                " paymentDate   : " + paymentDate + "\n " +
-                " review        : " + review + "\n " +
-                " rating        : " + rating + "\n ";
+                " washerName    : " + washerName + " \n " +
+                " orderId       : " + orderId + " \n " +
+                " paymentId     : " + paymentId + " \n " +
+                " transactionId : " + transactionId + " \n " +
+                " paymentStatus : " + paymentStatus + " \n " +
+                " amount        : " + amount + " \n " +
+                " paymentDate   : " + paymentDate + " \n " +
+                " review        : " + review + " \n " +
+                " rating        : " + rating + " \n ";
     }
 }

@@ -3,7 +3,7 @@ package com.jay.CWWasherMicroservice.controller;
 import com.jay.CWWasherMicroservice.filter.JwtFilter;
 import com.jay.CWWasherMicroservice.model.*;
 import com.jay.CWWasherMicroservice.repository.WasherRepository;
-import com.jay.CWWasherMicroservice.service.WasherService;
+import com.jay.CWWasherMicroservice.service.WasherServiceImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import com.jay.CWWasherMicroservice.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.util.List;
 public class WasherController {
 
     @Autowired
-    private WasherService washerService;
+    private WasherServiceImpl washerServiceImpl;
 
     @Autowired
     private WasherRepository washerRepository;
@@ -46,7 +46,7 @@ public class WasherController {
 
     @GetMapping("/get-washer/{name}")
     public Washer getWasherByName(@PathVariable String name) {
-        return washerService.findByName(name);
+        return washerServiceImpl.findByName(name);
     }
 
     @GetMapping("/all-washers") // Shows all Washers available in the DB
@@ -56,12 +56,12 @@ public class WasherController {
 
     @GetMapping("/receive-wash-notifications") //Call to activate Reception of notifications from Customer
     public String notificationTest() throws Exception {
-        return washerService.receiveNotification();
+        return washerServiceImpl.receiveNotification();
     }
 
     @GetMapping("/washer-choice") //Washer accepting/Rejecting received Wash-Request
     public String acceptWash(@RequestParam("option") Boolean option) {
-        return washerService.washerChoice(option);
+        return washerServiceImpl.washerChoice(option);
     }
 
     @PostMapping("/authenticate")
@@ -86,30 +86,30 @@ public class WasherController {
 
     @GetMapping("/order-accepted")
     public String orderAccepted(){
-            washerService.sendNotification("Order-Placed");
+            washerServiceImpl.sendNotification("Order-Placed");
         return "Order Placed with washer Partner:" + jwtFilter.getLoggedInUserName();
     }
 
     @GetMapping("/wash-completed")
     public String completedWash() {
-        if(washerService.washRequestFromCustomer().contains("Order-placed")) {
-            washerService.sendNotification("wash-completed, proceed for payment...");
+        if(washerServiceImpl.washRequestFromCustomer().contains("Order-placed")) {
+            washerServiceImpl.sendNotification("wash-completed, proceed for payment...");
         }
-        return "Washer Partner served the request: "+ washerService.washRequestFromCustomer();
+        return "Washer Partner served the request: "+ washerServiceImpl.washRequestFromCustomer();
     }
 
     @PostMapping("/get-rating")
     public RatingReview takeRating(@RequestBody RatingReview ratingReview){
-        return washerService.takeRating(ratingReview);
+        return washerServiceImpl.takeRating(ratingReview);
     }
 
     @GetMapping("/my-orders")
     public List<Order> myOrders(){
-        return washerService.washerOrders(jwtFilter.getLoggedInUserName());
+        return washerServiceImpl.washerOrders(jwtFilter.getLoggedInUserName());
     }
 
     @GetMapping("/washer-leaderboard")
     public List<WasherLeaderboard> leaderboard(){
-        return washerService.washerLeaderboard();
+        return washerServiceImpl.washerLeaderboard();
     }
 }

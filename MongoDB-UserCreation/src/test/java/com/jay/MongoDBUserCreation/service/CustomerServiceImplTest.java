@@ -9,13 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class CustomerServiceTest {
+class CustomerServiceImplTest {
 
-    CustomerService customerServiceMock = mock(CustomerService.class);
+    CustomerServiceImpl customerServiceImplMock = mock(CustomerServiceImpl.class);
 
     @Test
     @DisplayName("Get the list of Wash Packages")
@@ -24,7 +23,7 @@ class CustomerServiceTest {
                 new WashPack("one",2234),
                 new WashPack("interior",673),
                 new WashPack("engine",55));
-        when(customerServiceMock.getPacks()).thenReturn(washPackList);
+        when(customerServiceImplMock.getPacks()).thenReturn(washPackList);
     }
 
     @Test
@@ -34,13 +33,13 @@ class CustomerServiceTest {
                 new WashPack("one",2234),
                 new WashPack("interior",673),
                 new WashPack("engine",55));
-        when(customerServiceMock.getPack("one")).thenReturn(washPackList.get(1));
+        when(customerServiceImplMock.getPack("one")).thenReturn(washPackList.get(1));
     }
 
     @Test
     @DisplayName("Washer reply")
     void washBookingResponseFromWasher() {
-        when(customerServiceMock.washBookingResponseFromWasher()).thenReturn("accepted/rejected");
+        when(customerServiceImplMock.washBookingResponseFromWasher()).thenReturn("accepted/rejected");
     }
 
     @Test
@@ -48,13 +47,13 @@ class CustomerServiceTest {
     void findByName() {
         Customer customer = new Customer(
                 1,"a","pass",new ArrayList<String>(),"suv","email");
-        when(customerServiceMock.findByName("customer")).thenReturn(customer);
+        when(customerServiceImplMock.findByName("customer")).thenReturn(customer);
     }
 
     @Test
     @DisplayName("Sending washer the wash request/booking wash")
     void sendNotification() {
-        when(customerServiceMock.sendNotification("book-wash")).thenReturn("wash request sent");
+        when(customerServiceImplMock.sendNotification("book-wash")).thenReturn("wash request sent");
     }
 
 
