@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @SuppressWarnings("unused")
-public class PaymentServiceImpl implements PaymentService{
+public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -46,7 +46,7 @@ public class PaymentServiceImpl implements PaymentService{
     @Autowired
     public EmailService emailService;
 
-    private Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
     public void sendEmailDummy() throws AddressException {
         final Email email = DefaultEmail.builder()
@@ -54,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService{
                 .replyTo(new InternetAddress("jayanth2683@gmail.com"))
                 .to(Lists.newArrayList(new InternetAddress("tlsaravind59@gmail.com")))
                 .subject("Lorem ipsum")
-                .body("Hey, your car has been washed "+ "\n" +" You RECEIPT: " + "\n"+" Dummy Receipt")
+                .body("Hey, your car has been washed " + "\n" + " You RECEIPT: " + "\n" + " Dummy Receipt")
                 .encoding(String.valueOf(StandardCharsets.UTF_8)).build();
 
         emailService.send(email);
@@ -89,10 +89,10 @@ public class PaymentServiceImpl implements PaymentService{
             order.setPaymentStatus("Paid");
             restTemplate.postForObject("http://order-microservice/order/update-status", order, Order.class);
             paymentRepository.save(payment);
-            sendEmail(payment,order.getEmailAddress());
+            sendEmail(payment, order.getEmailAddress());
             return new TransactionResponse(order, payment.getTransactionId(), payment.getAmount(), "Payment Successful");
         } else {
-            sendEmail(payment,order.getEmailAddress());
+            sendEmail(payment, order.getEmailAddress());
             return new TransactionResponse(order, payment.getTransactionId(), payment.getAmount(), "Payment Failed Please try again!");
         }
     }

@@ -8,6 +8,8 @@ import com.jay.CWPaymentService.repository.PaymentRepository;
 import com.jay.CWPaymentService.service.PaymentServiceImpl;
 import it.ozimov.springboot.mail.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.internet.AddressException;
@@ -33,8 +35,8 @@ public class PaymentController {
     }
 
     @GetMapping("/get-payments-list")
-    public List<Payment> paymentList() {
-        return paymentRepository.findAll();
+    public ResponseEntity<List<Payment>> paymentList() {
+        return new ResponseEntity<>(paymentRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/get-payment/{name}")
@@ -47,7 +49,7 @@ public class PaymentController {
         Payment payment = new Payment();
         payment.setPaymentId(1232);
         payment.setPaymentStatus("Success");
-        paymentServiceImpl.sendEmail(payment,"jayanth2683@gmail.com");
+        paymentServiceImpl.sendEmail(payment, "jayanth2683@gmail.com");
         return "Sent Mail";
     }
 
@@ -58,7 +60,7 @@ public class PaymentController {
     }
 
     @RequestMapping("/test-payment")
-    public String testPayment(){
+    public String testPayment() {
         return "Payment gateway up and running";
     }
 

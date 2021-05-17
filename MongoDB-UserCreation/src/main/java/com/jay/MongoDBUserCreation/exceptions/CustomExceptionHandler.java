@@ -22,7 +22,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public final ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
-        ErrorResponse error = new ErrorResponse("Server Error", details);
+        ErrorResponse error = new ErrorResponse("Server Error, Please try again !", details);
         return new ResponseEntity(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -31,6 +31,13 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
         ErrorResponse error = new ErrorResponse("No Customer with those details exist.", details);
+        return new ResponseEntity(error, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(AllFieldsAreNecessaryException.class)
+    public final ResponseEntity<Object> handleUserNotFoundException(AllFieldsAreNecessaryException ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Fill in all the required details to register", details);
         return new ResponseEntity(error, HttpStatus.NOT_FOUND);
     }
 

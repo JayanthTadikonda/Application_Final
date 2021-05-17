@@ -42,12 +42,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-resources/**",
                         "/swagger-ui.html",
                         "/v2/api-docs",
-                        "/webjars/**", "/customer/swagger-ui/", "/customer/api/swagger-ui/", "/customer/authenticate").permitAll()
-                .antMatchers("/customer/confirmation", "/customer/add-customer"
+                        "/webjars/**", "/customer/swagger-ui/", "/customer/api/swagger-ui/",
+                        "/customer/authenticate", "/customer/add-customer","/customer/addOn-menu","/customer/wash-menu").permitAll()
+                .antMatchers("/customer/confirmation"
                         , "/customer/customer-only", "/customer/my-orders").hasAnyAuthority("ADMIN", "CUSTOMER")
                 .antMatchers("/customer/get-customer/",
                         "/customer/get-customer/{name}", "/customer/customer-id/{id}",
-                        "customer/date/{date}", "/customer/all-customers").hasAuthority("ADMIN")
+                        "customer/date/{date}", "/customer/all-customers").hasAnyAuthority("ADMIN","CUSTOMER")
                 .antMatchers("/customer/washer-only").hasAnyAuthority("WASHER", "ADMIN")
                 .anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()

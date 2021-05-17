@@ -3,6 +3,7 @@ package com.jay.CWOrderService.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jay.CWOrderService.common.*;
+import com.jay.CWOrderService.exceptions.OrdersNotFoundException;
 import com.jay.CWOrderService.model.Order;
 import com.jay.CWOrderService.repository.OrderRepository;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
-public class OrderServiceImpl implements OrderService{
+public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
@@ -27,8 +28,7 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private AutomatedOrderId orderId;
 
-    private Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
-
+    private final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     public TransactionResponse saveOrder(TransactionRequest request) {
 
@@ -68,7 +68,11 @@ public class OrderServiceImpl implements OrderService{
     }
 
     public List<Order> getOrderListByName(String name) {
-        return orderRepository.findAll().stream().filter(a -> a.getCustomerName().equalsIgnoreCase(name)).collect(Collectors.toList());
+        List<Order> orderList = orderRepository.findAll().stream().filter(a -> a.getCustomerName().equalsIgnoreCase(name)).collect(Collectors.toList());
+        if (orderList == null) {
+            throw new OrdersNotFoundException("Sorry, No orders available with the provided name, please provide the name used while registration !");
+        }
+        return orderList;
     }
 
     public List<Order> getWasherOrderListByName(String name) {

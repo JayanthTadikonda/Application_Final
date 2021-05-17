@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface CustomerService {
 
-    public List<WashPack> getPacks();
 
     public WashPack getPack(String packName);
 
@@ -14,7 +13,7 @@ public interface CustomerService {
 
     public Customer findByName(String name);
 
-    public String updateProfile(String name, Customer customer);
+    public Customer updateProfile(String name);
 
     public String sendNotification(String notification);
 
@@ -33,5 +32,9 @@ public interface CustomerService {
     public List<WasherLeaderboard> washerLeaderboard();
 
     public AddOn getAddOn(String name);
+
+    public List<WashPack> getAllWashPackages();
+
+    public Customer addNewCustomer(Customer customer);
 
 }

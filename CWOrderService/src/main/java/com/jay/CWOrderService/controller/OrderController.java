@@ -36,10 +36,12 @@ public class OrderController {
 
     @GetMapping("/get-orders/{name}")
     public ResponseEntity<List<Order>> getOrdersByName(@PathVariable String name) {
-        List<Order> orderList = orderServiceImpl.getOrderListByName(name);
-        if (orderList == null) {
-            throw new OrdersNotFoundException("Sorry, No orders available with the provided name, please provide the name used while registration !");
-        }
+        return new ResponseEntity<>(orderServiceImpl.getOrderListByName(name), HttpStatus.OK);
+    }
+
+    @GetMapping("/get-all-orders")
+    public ResponseEntity<List<Order>> getOrders() {
+        List<Order> orderList = orderRepository.findAll();
         return new ResponseEntity<>(orderList, HttpStatus.OK);
     }
 
@@ -54,7 +56,7 @@ public class OrderController {
     }
 
     @RequestMapping("/test-order")
-    public String testOrder(){
+    public String testOrder() {
         return "Order service running";
     }
 }

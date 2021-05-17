@@ -44,8 +44,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/swagger-ui.html",
                 "/v2/api-docs",
                 "/webjars/**",
-                "/washer/customer-secure-method").permitAll()
-                .antMatchers("/washer/add-washer","/washer/all-washers").hasAuthority("ADMIN")
+                "/washer/customer-secure-method","/washer/add-washer").permitAll()
+                .antMatchers("/washer/all-washers").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

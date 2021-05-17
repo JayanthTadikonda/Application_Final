@@ -13,20 +13,17 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @SuppressWarnings({"unused"})
-public class WasherServiceImpl implements WasherService{
+public class WasherServiceImpl implements WasherService {
 
     private static final String request = "request-booking";
     private static final String booking = "booking-queue";
@@ -48,18 +45,10 @@ public class WasherServiceImpl implements WasherService{
 
     String copyMsg = ""; //notification received from the customer
 
-    private List<WasherLeaderboard> leaderboard = Arrays.asList(new WasherLeaderboard("washer8",1500),
-            new WasherLeaderboard("washer1",834),
-            new WasherLeaderboard("washer2",605),
-            new WasherLeaderboard("washer3",18),
-            new WasherLeaderboard("washer4",87),
-            new WasherLeaderboard("washer5",459),
-            new WasherLeaderboard("washer6",1453),
-            new WasherLeaderboard("washer7",102));
-
     String washerName;
+
     //Logged in Washer-Name
-    public String washerName(){
+    public String washerName() {
         washerName = jwtFilter.getLoggedInUserName();
         return jwtFilter.getLoggedInUserName();
     }
@@ -134,7 +123,7 @@ public class WasherServiceImpl implements WasherService{
         return ratingReview;
     }
 
-    public List<Order> washerOrders(String name){
+    public List<Order> washerOrders(String name) {
 
         List<Order> orderList = null;
 
@@ -143,7 +132,7 @@ public class WasherServiceImpl implements WasherService{
                     "http://order-microservice/order/washer-orders/" + name,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Order>>() {
+                    new ParameterizedTypeReference<>() {
                     });
             if (claimResponse.hasBody()) {
                 orderList = claimResponse.getBody();
@@ -154,8 +143,29 @@ public class WasherServiceImpl implements WasherService{
         return orderList;
     }
 
-    public List<WasherLeaderboard> washerLeaderboard(){
-        return leaderboard;
+    public List<WasherLeaderboard> washerLeaderboard() {
+        List<WasherLeaderboard> washerLeaderboardList = null;
+
+        try {
+            ResponseEntity<List<WasherLeaderboard>> claimResponse = restTemplate.exchange(
+                    "http://admin/admin/leaderboard",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<>() {
+                    });
+            if (claimResponse.hasBody()) {
+                washerLeaderboardList = claimResponse.getBody();
+            }
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+        return washerLeaderboardList;
+    }
+
+    public Washer updateProfile(String newName) {
+        Washer washer = findByName(jwtFilter.getLoggedInUserName());
+        washer.setName(newName);
+        return washerRepository.save(washer);
     }
 
 }

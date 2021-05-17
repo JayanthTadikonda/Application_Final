@@ -7,7 +7,9 @@ import com.jay.MongoDBUserCreation.repository.CustomerRepository;
 import com.jay.MongoDBUserCreation.service.CustomerServiceImpl;
 import com.jay.MongoDBUserCreation.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/customer")
@@ -40,16 +45,24 @@ public class CustomerController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @GetMapping("/wash-menu")
-    public List<WashPack> getWashPackages() {
-        return customerServiceImpl.getPacks();
+    public ResponseEntity<List<WashPack>> getWashPackages() {
+        return new ResponseEntity<>(customerServiceImpl.getAllWashPackages(), HttpStatus.OK);
+    }
+
+    @GetMapping("/addOn-menu")
+    public ResponseEntity<List<AddOn>> getAddOns(){
+        return new ResponseEntity<>(customerServiceImpl.getAllAddOns(),HttpStatus.OK);
     }
 
     @GetMapping("/schedule-wash/{date}")
     public String scheduleWash(@DateTimeFormat(pattern = "dd.MM.yyyy") @PathVariable LocalDate date) throws Exception {
-        String sent = customerServiceImpl.sendNotification("Requesting for Scheduling wash at: " + date + "By customer: " + jwtFilter.getLoggedInUserName());
+        String sent = customerServiceImpl.sendNotification("book-wash at: " + date + " By customer: " + jwtFilter.getLoggedInUserName());
         String resp = customerServiceImpl.receiveNotification();
-        return sent;
+        return "Wash Need on Date: "+date.toString();
     }
 
     @GetMapping("/date/{date}")
@@ -82,39 +95,30 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/add-customer", consumes = MediaType.APPLICATION_JSON_VALUE) // New Customer Registration
-    public Customer addCustomer(@RequestBody Customer customer) {
-        customerRepository.save(customer);
-        return customer;
+    public Customer addCustomer(@Valid @RequestBody Customer customer) {
+        return customerServiceImpl.addNewCustomer(customer);
     }
-
 
     @GetMapping("/get-customer/{name}") // Get customer with name
     public ResponseEntity<Customer> getCustomerByName(@PathVariable String name) {
         Customer customer = customerServiceImpl.findByName(name);
-        if (customer == null) {
-            throw new CustomerNotFoundException("Sorry, Customer with the provided name not found, please provide the name used while registration !");
-        }
         return new ResponseEntity<Customer>(customer, HttpStatus.OK);
     }
 
     @GetMapping("/customer-id/{id}") // Get customer with ID
     public ResponseEntity<Customer> getCustomerById(@PathVariable int id) {
         Customer customer = customerRepository.findById(id);
-        if (customer == null) {
-            throw new CustomerNotFoundException("Invalid Customer Id, please provide valid ID !");
-        }
         return new ResponseEntity<Customer>(customer, HttpStatus.OK);
     }
 
-
-    @GetMapping("/all-customers") //Lists all the customers in the db
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    @GetMapping("/get-all-customers") //Lists all the customers in the db
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        return new ResponseEntity<>(customerRepository.findAll(), HttpStatus.OK);
     }
 
     @PostMapping("/update-profile/{name}") // Update user profile
-    public String updateProfile(@PathVariable String name, @RequestBody Customer customer) {
-        return customerServiceImpl.updateProfile(name, customer);
+    public Customer updateProfile(@PathVariable String name) {
+        return customerServiceImpl.updateProfile(name);
     }
 
     @GetMapping("/confirmation") //Call to activate Reception of notifications from Customer
@@ -152,12 +156,13 @@ public class CustomerController {
 
     //@PreAuthorize("hasRole('WASHER')")
     @GetMapping("/washer-only")
-    public String heyWasher(){
+    public String heyWasher() {
         return "This method only Accessible by Washer Partner !, Hey there washer !!!";
     }
+
     //@PreAuthorize("hasAuthority('CUSTOMER')")
     @GetMapping("/customer-only")
-    public String heyCustomer(){
-        return "This method only Accessible by Customerrrrrr !";
+    public String heyCustomer() {
+        return "This method only Accessible by Customer !";
     }
 }

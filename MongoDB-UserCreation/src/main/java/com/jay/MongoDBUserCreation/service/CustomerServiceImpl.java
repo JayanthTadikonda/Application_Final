@@ -1,5 +1,7 @@
 package com.jay.MongoDBUserCreation.service;
 
+import com.jay.MongoDBUserCreation.exceptions.AllFieldsAreNecessaryException;
+import com.jay.MongoDBUserCreation.exceptions.CustomerNotFoundException;
 import com.jay.MongoDBUserCreation.filter.JwtFilter;
 import com.jay.MongoDBUserCreation.model.*;
 import com.jay.MongoDBUserCreation.repository.CustomerRepository;
@@ -18,15 +20,13 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @SuppressWarnings({"UnusedDeclaration"})
-public class CustomerServiceImpl implements CustomerService{
+public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     CustomerRepository customerRepository;
@@ -49,21 +49,8 @@ public class CustomerServiceImpl implements CustomerService{
 
     String washerResponse = "";
 
-    private final List<WashPack> packs = new ArrayList<>(Arrays.asList(new WashPack("basic-wash", 999),
-            new WashPack("advanced-wash", 1999)));
-
-    private final List<AddOn> addOnList = new ArrayList<>(Arrays.asList(new AddOn("interior-clean",499),
-            new AddOn("Sanitization",599),
-            new AddOn("Teflon-Coating",699),
-            new AddOn("Engine-Care",799)));
-
-
-    public List<WashPack> getPacks() {
-        return packs;
-    }
-
     public WashPack getPack(String packName) {
-        return packs.stream().filter(p -> p.getPackName().contains(packName)).findAny().orElse(null);
+        return restTemplate.getForObject("http://admin/admin/get-pack/" + packName, WashPack.class);
     }
 
     public String washBookingResponseFromWasher() {
@@ -72,24 +59,21 @@ public class CustomerServiceImpl implements CustomerService{
 
     public Customer findByName(String name) {
 
-        return customerRepository
+        Customer customer = customerRepository
                 .findAll()
                 .stream()
                 .filter(a -> a.getName().equalsIgnoreCase(name))
                 .findAny().orElse(null);
+        if (customer == null) {
+            throw new CustomerNotFoundException("Sorry, Customer with the provided name not found, please provide the name used while registration !");
+        } else return customer;
     }
 
-    public String updateProfile(String name, Customer customer) {
-        if (customerRepository.findByName(name).getName().equalsIgnoreCase(name)) {
-            Customer customer1 = customerRepository.findByName(name);
-            customer1.setName(customer.getName());
-            customer1.setPassword(customer.getPassword());
-            customer1.setAddress(customer.getAddress());
-            customer1.setCarModel(customer.getCarModel());
-            customerRepository.save(customer);
-        } else
-            return "No Customer by that name:" + name;
-        return name + " Profile Updated";
+    public Customer updateProfile(String name) {
+
+        Customer customer1 = customerRepository.findByName(jwtFilter.getLoggedInUserName());
+        customer1.setName(name);
+        return customerRepository.save(customer1);
     }
 
     public String sendNotification(String notification) {
@@ -186,7 +170,7 @@ public class CustomerServiceImpl implements CustomerService{
         assert orderList != null;
         for (Order o : orderList) {
             //Condition for FIRST-TIME payment
-            if (!orderId_paymentList.contains(o.getOrderId())) {
+            if (!orderId_paymentList.contains(o.getOrderId()) && washStatus.contains("wash-completed")) {
                 //Do 1st Time payment
                 return doPay(o, ratingReview);
             } else if (!orderId_paymentList.contains(o.getOrderId()) && o.getPaymentStatus().contains("pending")) {
@@ -213,7 +197,7 @@ public class CustomerServiceImpl implements CustomerService{
             order.setDate(new Date(System.currentTimeMillis()));
             order.setEmailAddress(customer.getEmailAddress());
             placedOrder = restTemplate.postForObject("http://order-microservice/order/place-order", order, Order.class);
-            sendNotification("Order placed at: " + order.getDate() + "with Washer Partner: " + order.getWasherName());
+            sendNotification("Order placed at: " + order.getDate() + "with Washer Partner: " + resp.substring(40));
             String orderStatus = restTemplate.getForObject("http://washer-microservice/washer/order-accepted", String.class);
             System.out.println(orderStatus);
 
@@ -228,7 +212,7 @@ public class CustomerServiceImpl implements CustomerService{
         return restTemplate.postForObject("http://washer-microservice/washer/get-rating", ratingReview, RatingReview.class);
     }
 
-    public List<Order> customerOrders(String name){
+    public List<Order> customerOrders(String name) {
 
         List<Order> orderList = null;
 
@@ -240,7 +224,7 @@ public class CustomerServiceImpl implements CustomerService{
                     new ParameterizedTypeReference<List<Order>>() {
                     });
             if (claimResponse.hasBody()) {
-               orderList = claimResponse.getBody();
+                orderList = claimResponse.getBody();
             }
         } catch (RestClientException e) {
             e.printStackTrace();
@@ -249,11 +233,54 @@ public class CustomerServiceImpl implements CustomerService{
         return orderList;
     }
 
-    public List<WasherLeaderboard> washerLeaderboard(){
-        return restTemplate.getForObject("http://washer-microservice/washer/washer-leaderboard",List.class);
+    public List<WasherLeaderboard> washerLeaderboard() {
+        List<WasherLeaderboard> washerLeaderboardList = null;
+
+        try {
+            ResponseEntity<List<WasherLeaderboard>> claimResponse = restTemplate.exchange(
+                    "http://admin/admin/leaderboard",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<WasherLeaderboard>>() {
+                    });
+            if (claimResponse.hasBody()) {
+                washerLeaderboardList = claimResponse.getBody();
+            }
+        } catch (RestClientException e) {
+            e.printStackTrace();
+        }
+        return washerLeaderboardList;
     }
 
-    public AddOn getAddOn(String name){
-        return addOnList.stream().filter(a->a.getAddOnName().contains(name)).findAny().orElse(null);
+    public AddOn getAddOn(String name) {
+
+        return restTemplate.getForObject("http://admin/admin/get-addOn/" + name, AddOn.class);
+    }
+
+    public List<WashPack> getAllWashPackages() {
+        ResponseEntity<List<WashPack>> packs =
+                restTemplate.exchange("http://admin/admin/all-packs",
+                        HttpMethod.GET, null, new ParameterizedTypeReference<List<WashPack>>() {
+                        });
+        List<WashPack> packList = packs.getBody();
+        return packList;
+    }
+
+    public List<AddOn> getAllAddOns(){
+        ResponseEntity<List<AddOn>> packs =
+                restTemplate.exchange("http://admin/admin/all-addOns",
+                        HttpMethod.GET, null, new ParameterizedTypeReference<List<AddOn>>() {
+                        });
+        List<AddOn> addOnList = packs.getBody();
+        return addOnList;
+    }
+
+    public Customer addNewCustomer(Customer customer) {
+        if (customer == null) {
+            throw new AllFieldsAreNecessaryException("Fill in Complete Details");
+        } else {
+            customer.setRole("CUSTOMER");
+            return customerRepository.save(customer);
+        }
     }
 }

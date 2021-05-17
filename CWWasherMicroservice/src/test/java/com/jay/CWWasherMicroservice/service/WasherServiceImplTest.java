@@ -39,12 +39,13 @@ class WasherServiceImplTest {
     void sendNotification() {
     }
 
+
     @Test
     @DisplayName("Get washer by name")
     void findByName() {
         when(washerServiceImplMock.findByName("washer"))
                 .thenReturn(new Washer(
-                        1,"washer","pass",new ArrayList<String>(),new ArrayList<RatingReview>(),null));
+                        null,"washer","pass",new ArrayList<String>(),new ArrayList<RatingReview>(),null));
 
     }
 
